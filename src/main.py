@@ -1,76 +1,148 @@
+from dataclasses import dataclass
+
 import flet as ft
 
 
 def main(page: ft.Page):
-    selected_file_name = ft.Text("No file selected")
-    selected_file_content = ft.TextField(
-        label="Selected file content",
-        multiline=True,
-        min_lines=8,
-        max_lines=14,
-    )
-    save_status = ft.Text()
+    page.title = "Arq"
+    page.vertical_alignment = ft.MainAxisAlignment.CENTER
+    page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
+    page.window.width = 576
+    page.window.height = 576
+    page.window.always_on_top = True
+    page.update()
 
-    async def pick_text_file(_: ft.Event[ft.Button]):
-        files = await ft.FilePicker().pick_files(
+    file_picker = ft.FilePicker()
+    picked_file = ft.Text(text_align=ft.TextAlign.CENTER)
+
+    async def on_pick_file(_: ft.Event[ft.Button]) -> None:
+        files = await file_picker.pick_files(
             allow_multiple=False,
-            with_data=True,
             file_type=ft.FilePickerFileType.CUSTOM,
             allowed_extensions=["txt"],
         )
-        if not files:
-            selected_file_name.value = "Selection cancelled"
-            selected_file_content.value = ""
-            return
 
-        selected = files[0]
-        selected_file_name.value = f"Selected: {selected.name} ({selected.size} bytes)"
-        selected_file_content.value = (
-            selected.bytes.decode("utf-8", errors="replace") if selected.bytes else ""
-        )
-        save_status.value = ""
-
-    async def save_text_file(_: ft.Event[ft.Button]):
-        file_name = "flet_text_content.txt"
-        file_path = await ft.FilePicker().save_file(
-            file_name=file_name,
-            file_type=ft.FilePickerFileType.CUSTOM,
-            allowed_extensions=["txt"],
-            src_bytes=selected_file_content.value.encode("utf-8"),
-        )
-        if page.web:
-            save_status.value = f"Downloaded as {file_name}"
-        else:
-            save_status.value = (
-                f"Saved to: {file_path}" if file_path else "Save cancelled"
-            )
+        picked_file.value = files[0].path or "" if files else picked_file.value
+        print(f"{picked_file.value}")
 
     page.add(
         ft.SafeArea(
-            content=ft.Column(
-                controls=[
-                    ft.Text(
-                        "Pick a .txt/.md file and load its text from "
-                        "FilePickerFile.bytes"
+            ft.ListView(
+                [
+                    ft.Button(
+                        ft.Text(
+                            "Selecionar arquivo ECD (.txt)",
+                            max_lines=1,
+                            overflow=ft.TextOverflow.ELLIPSIS,
+                        ),
+                        on_click=on_pick_file,
+                        icon=ft.Icons.FILE_UPLOAD_ROUNDED,
+                        width=64,
+                        height=32,
+                    ),
+                    ft.Card(
+                        ft.Container(
+                            ft.Column(
+                                [
+                                    ft.ListTile(
+                                        # bgcolor=ft.Colors.PRIMARY_CONTAINER,
+                                        title=ft.Text(
+                                            "",
+                                            text_align=ft.TextAlign.CENTER,
+                                            overflow=ft.TextOverflow.ELLIPSIS,
+                                        ),
+                                        subtitle=ft.Text(
+                                            "",
+                                            text_align=ft.TextAlign.CENTER,
+                                            overflow=ft.TextOverflow.ELLIPSIS,
+                                        ),
+                                    ),
+                                    ft.ListTile(
+                                        # bgcolor=ft.Colors.PRIMARY_CONTAINER,
+                                        title=ft.Text(
+                                            "",
+                                            text_align=ft.TextAlign.CENTER,
+                                            overflow=ft.TextOverflow.ELLIPSIS,
+                                        ),
+                                        subtitle=ft.Text(
+                                            "",
+                                            text_align=ft.TextAlign.CENTER,
+                                            overflow=ft.TextOverflow.ELLIPSIS,
+                                        ),
+                                    ),
+                                    ft.ListTile(
+                                        title=ft.Text(
+                                            "",
+                                            text_align=ft.TextAlign.CENTER,
+                                            overflow=ft.TextOverflow.ELLIPSIS,
+                                        ),
+                                        subtitle=picked_file,
+                                    ),
+                                ]
+                            ),
+                            padding=ft.Padding.all(8),
+                            height=210,
+                        ),
                     ),
                     ft.Button(
-                        content="Pick text file",
-                        icon=ft.Icons.UPLOAD_FILE,
-                        on_click=pick_text_file,
+                        ft.Text(
+                            "Exportar plano de contas (.csv)",
+                            overflow=ft.TextOverflow.ELLIPSIS,
+                        ),
+                        on_click=on_pick_file,
+                        icon=ft.Icons.DOWNLOAD_ROUNDED,
+                        width=64,
+                        height=32,
                     ),
-                    selected_file_name,
-                    selected_file_content,
                     ft.Button(
-                        content="Save / Download text",
-                        icon=ft.Icons.DOWNLOAD,
-                        on_click=save_text_file,
+                        ft.Text(
+                            "Exportar balanço patrimonial (.csv)",
+                            overflow=ft.TextOverflow.ELLIPSIS,
+                        ),
+                        on_click=on_pick_file,
+                        icon=ft.Icons.DOWNLOAD_ROUNDED,
+                        width=64,
+                        height=32,
                     ),
-                    save_status,
+                    ft.Button(
+                        ft.Text(
+                            "Exportar demonstração de resultado (.csv)",
+                            overflow=ft.TextOverflow.ELLIPSIS,
+                        ),
+                        on_click=on_pick_file,
+                        icon=ft.Icons.DOWNLOAD_ROUNDED,
+                        width=64,
+                        height=32,
+                    ),
+                    ft.Button(
+                        ft.Text(
+                            "Exportar saldos periódicos (.csv)",
+                            overflow=ft.TextOverflow.ELLIPSIS,
+                        ),
+                        on_click=on_pick_file,
+                        icon=ft.Icons.DOWNLOAD_ROUNDED,
+                        width=64,
+                        height=32,
+                    ),
+                    ft.Button(
+                        ft.Text(
+                            "Exportar livro diário (.csv)",
+                            overflow=ft.TextOverflow.ELLIPSIS,
+                        ),
+                        on_click=on_pick_file,
+                        icon=ft.Icons.DOWNLOAD_ROUNDED,
+                        width=64,
+                        height=32,
+                    ),
                 ],
+                padding=ft.Padding.all(8),
+                spacing=16,
             ),
+            expand=True,
         )
     )
 
 
 if __name__ == "__main__":
+    # ft.run(lambda page: page.render(App))
     ft.run(main)
